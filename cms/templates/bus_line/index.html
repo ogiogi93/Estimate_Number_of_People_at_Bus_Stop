@@ -1,0 +1,288 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Estimate a Line ob the Bus Stop</title>
+    <meta name="description" content="">
+    <meta name="author" content="ogiogi93">
+
+    <!-- Mobile Specific Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
+    <link href="{% static 'css/TimeCircles.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/dc.css' %}" rel="stylesheet">
+    <link href="{% static 'css/timeline.css' %}" rel="stylesheet">
+
+    <style>
+        #dc-num-table{
+            width : 100px;
+            height: 100px;
+            color: white;
+            font-size: 45px;
+            text-align: center;
+            top: 10%;
+            right: 0;
+	        bottom: 0;
+	        left: 35%;
+	        margin: auto;
+            position: relative;
+        }
+        p{
+            color: white;
+        }
+        #dc-com-table{
+            color: black;
+        }
+    </style>
+
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"> Keio University</a>
+    </div>
+    <div class="collapse navbar-collapse" id="nav-menu-3">
+        <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav">
+                <li><a class="page-scroll" href="#main"> バス行列人数</a></li>
+                <li><a class="page-scroll" href="#time-table"> バス時刻表</a></li>
+            </ul>
+        </ul>
+    </div>
+</nav>
+<section class="bg" id="main">
+    <div class="bg-color">
+        <div class="container content">
+
+            <div class="row">
+                <div class="sun clearfix">
+                    <div class="col-sm-12">
+                        <h1>SFC-Research</h1>
+                        <h3>バス停各地点に設置されているWi-Fiセンサーを用いて、現在の各地点のバス行列人数を推定しています</h3>
+                        <h2>バス行列リアルタイム推定システム</h2>
+                    </div>
+                    <div id="left-block" class="col-sm-6 text-center">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-6">
+                                <h3>慶應大学前行列人数</h3>
+                                <div id='dc-num-table'></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <img class="img-responsive hidden-xs" src="/static/images/bus.png" width="200" height="200" alt="tab" id="bus_pic"/>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="balloon-wrapper">
+                                <p class="balloon-left" id="dc-com-table"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="right-block" class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-8">
+                                    <h3>次の湘南台行きバスの発車時間まで</h3>
+                                <div class="timing">
+                                    <div id="count-down" data-date="dc-dep-table"></div>
+                                </div>
+                                <p>本システムは個人情報等は一切収集していなく、Mac Addressは暗号化して記録しています.</p>
+                                <p>慶應義塾大学　政策・メディア研究科修士2年　荻原　崇</p>
+                                <p>ogiogi93@sfc.keio.ac.jp</p>
+                                <!-- /.timing -->
+                            </div>
+                        </div>
+                        <div id="row">
+                            <p class="followus"></p>
+                            <ul class="social-icon">
+                                <li><a href=""><i class="fa fa-camera-retro"></i></a></li>
+                                <li><a href=""><i class="fa fa-facebook"></i></a></li>
+                                <li><a href=""><i class="fa fa-twitter"></i></a></li>
+                            </ul>
+                            <div id="dc-range-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- .container end here -->
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class='row'>
+            <div class='col-sm-12'>
+                <br>
+                <h2 style="color: black;">バス時刻表</h2>
+                <table class='table table-hover dc-data-table' id='dc-time-table'>
+                    <thead>
+                    <tr class='header'>
+                        <th>出発時刻</th>
+                        <th>バスタイプ</th>
+                        <th>席数</th>
+                        <th>乗車人数</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="{% static 'js/jquery-3.0.0.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/TimeCircles.js' %}"></script>
+<script src="{% static 'js/jquery.ajaxchimp.min.js' %}"></script>
+<script src="{% static 'js/jquery.placeholder.js' %}"></script>
+<script src="{% static 'js/d3.js' %}"></script>
+<script src="{% static 'js/crossfilter.js' %}"></script>
+<script src="{% static 'js/dc.js' %}"></script>
+<script type="text/javascript">
+    $(function() {
+        // Invoke the plugin
+        $('input, textarea').placeholder();
+    });
+</script>
+<script>
+    $("#count-down").TimeCircles(
+            {
+                circle_bg_color: "#8a7f71",
+                use_background: true,
+                bg_width: 1.0,
+                fg_width: 0.02,
+                time: {
+                    Days: { color: "#fefeee" },
+                    Hours: { color: "#fefeee" },
+                    Minutes: { color: "#fefeee" },
+                    Seconds: { color: "#fefeee" }
+                }
+            }
+    );
+    var ndx, dimTime, grpTime;
+    var dep_time = dc.dataTable("#dc-dep-table"),
+            comment = dc.dataTable('#dc-com-table'),
+            num_people = dc.dataTable("#dc-num-table"),
+            time_table = dc.dataTable("#dc-time-table"),
+            range_chart = dc.lineChart('#dc-range-chart');
+
+    var data = {{ result|safe }};
+    console.log(data);
+    var parseTime = d3.time.format("%H:%M:%S").parse;
+    var parseDate = d3.time.format("%Y-%m-%d").parse;
+    data.forEach(function (d) {
+        d.dep_time2 = parseTime(d.dep_time);
+        d.date2 = parseDate(String(d.date));
+    });
+
+    /* run data through crossfilter */
+    ndx = crossfilter(data);
+
+    /* Set dimension */
+    dimTime = ndx.dimension(function (d){
+        return d.dep_time2;
+    });
+
+    /* Set Group */
+    grpTime = dimTime.group().reduceSum(function(d){
+        return d.num_people;
+    });
+
+    /* Time Range */
+    var minTime = dimTime.bottom(1)[0].dep_time2;
+    var maxTime = dimTime.top(1)[0].dep_time2;
+
+
+    /* dc.js Settings */
+    dep_time
+            .width(400)
+            .height(400)
+            .dimension(dimTime)
+            .group(function () {
+                return "";
+            })
+            .size(1)
+            .columns([
+                function (d){
+                    return d.dep_time;
+                }
+            ])
+            .sortBy(function(d) {
+                return d.dep_time2;
+            })
+            .order(d3.descending);
+
+   comment
+            .width(400)
+            .height(400)
+            .dimension(dimTime)
+            .group(function () {
+                return "";
+            })
+            .size(1)
+            .columns([
+                function (d){
+                    return 'バスは空いています。席に座れる可能性が高いです';
+                }
+            ])
+            .sortBy(function(d) {
+                return d.dep_time2;
+            })
+            .order(d3.descending);
+
+    num_people
+            .width(100)
+            .height(100)
+            .dimension(dimTime)
+            .group(function () {
+                return "";
+            })
+            .size(1)
+            .columns([
+                function (d){
+                    return d.num_people;
+                }
+            ])
+            .sortBy(function(d) {
+                return d.dep_time2;
+            })
+            .order(d3.descending);
+
+    time_table
+            .width(100)
+            .height(100)
+            .dimension(dimTime)
+            .group(function () {
+                return "";
+            })
+            .size(6)
+            .columns([
+                function (d){
+                    return d.dep_time;
+                }
+            ])
+            .sortBy(function(d) {
+                return d.dep_time2;
+            })
+            .order(d3.ascending);
+
+    range_chart
+            .width(500)
+            .height(30)
+            .dimension(dimTime)
+            .margins({top: 0, right: 50, bottom: 20, left: -1})
+            .group(grpTime)
+            .x(d3.time.scale().domain([minTime, maxTime]));
+
+    dc.renderAll();
+</script>
+</body>
+</html>
