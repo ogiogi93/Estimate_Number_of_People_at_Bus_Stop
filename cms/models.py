@@ -14,6 +14,7 @@ class Result(models.Model):
 
 
 class Sensor(models.Model):
+    id = models.AutoField(primary_key=True, auto_created=True)
     s_mac_address = models.CharField(max_length=255)
     s_ssid = models.CharField(max_length=255)
     s_created_at = models.DateTimeField()
@@ -23,3 +24,16 @@ class Sensor(models.Model):
     class Meta:
         managed = False
         db_table = 'sensor'
+
+
+class TimeTable(models.Model):
+    id = models.BigIntegerField(db_column='index', primary_key=True)
+    dest = models.CharField(max_length=255)
+    dep_time = models.DateTimeField()
+    type = models.CharField(max_length=255)
+    max_num = models.IntegerField()
+    seat_num = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'timetable'

@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Estimate a Line ob the Bus Stop</title>
+    <title>Estimate a Line of the Bus Stop</title>
     <meta name="description" content="">
     <meta name="author" content="ogiogi93">
 
@@ -36,47 +36,43 @@
         p{
             color: white;
         }
+        h5{
+            color:white;
+        }
         #dc-com-table{
             color: black;
+            font-size: 22px;
         }
     </style>
 
 </head>
 <body>
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#"> Keio University</a>
-    </div>
-    <div class="collapse navbar-collapse" id="nav-menu-3">
-        <ul class="nav navbar-nav">
-            <ul class="nav navbar-nav">
-                <li><a class="page-scroll" href="#main"> バス行列人数</a></li>
-                <li><a class="page-scroll" href="#time-table"> バス時刻表</a></li>
-            </ul>
-        </ul>
-    </div>
-</nav>
 <section class="bg" id="main">
     <div class="bg-color">
         <div class="container content">
-
+            <br>
             <div class="row">
                 <div class="sun clearfix">
-                    <div class="col-sm-12">
+                    <div class="col-sm-10">
                         <h1>SFC-Research</h1>
                         <h3>バス停各地点に設置されているWi-Fiセンサーを用いて、現在の各地点のバス行列人数を推定しています</h3>
                         <h2>バス行列リアルタイム推定システム</h2>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">目的駅を選択
+                                <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li><a href="JavaScript:clickStation1()">湘南台駅行</a></li>
+                                <li><a href="JavaScript:clickStation2()">辻堂駅行</a></li>
+                            </ul>
+                        </div>
                     </div>
                     <div id="left-block" class="col-sm-6 text-center">
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-6">
                                 <h3>慶應大学前行列人数</h3>
+                                <h5>推定人数/席数</h5>
                                 <div id='dc-num-table'></div>
                             </div>
                         </div>
@@ -92,11 +88,12 @@
                     <div id="right-block" class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-8">
-                                    <h3>次の湘南台行きバスの発車時間まで</h3>
+                                    <h3><div id="dc-dest-name"></div></h3>
                                 <div class="timing">
-                                    <div id="count-down" data-date="dc-dep-table"></div>
+                                    <!--<div id="count-down" data-date="dc-dep-table"></div> --->
+                                    <div id="count-down" data-date="2016-06-25 16:00:00"></div>
                                 </div>
-                                <p>本システムは個人情報等は一切収集していなく、Mac Addressは暗号化して記録しています.</p>
+                                <p>本システムは個人情報等は一切収集していなく、Mac Addressは暗号化して記録しています。<br>質問やご意見については、下記のアドレスへお問い合せ下さい</p>
                                 <p>慶應義塾大学　政策・メディア研究科修士2年　荻原　崇</p>
                                 <p>ogiogi93@sfc.keio.ac.jp</p>
                                 <!-- /.timing -->
@@ -128,6 +125,7 @@
                     <thead>
                     <tr class='header'>
                         <th>出発時刻</th>
+                        <th>目的地</th>
                         <th>バスタイプ</th>
                         <th>席数</th>
                         <th>乗車人数</th>
@@ -169,19 +167,20 @@
     );
     var ndx, dimTime, grpTime;
     var dep_time = dc.dataTable("#dc-dep-table"),
+            dest_name = dc.dataTable("#dc-dest-name"),
             comment = dc.dataTable('#dc-com-table'),
             num_people = dc.dataTable("#dc-num-table"),
             time_table = dc.dataTable("#dc-time-table"),
+            select_station = dc.rowChart("#dc-select-station"),
             range_chart = dc.lineChart('#dc-range-chart');
 
     var data = {{ result|safe }};
-    console.log(data);
-    var parseTime = d3.time.format("%H:%M:%S").parse;
-    var parseDate = d3.time.format("%Y-%m-%d").parse;
+    var parseTime = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+
     data.forEach(function (d) {
         d.dep_time2 = parseTime(d.dep_time);
-        d.date2 = parseDate(String(d.date));
     });
+    console.log(data);
 
     /* run data through crossfilter */
     ndx = crossfilter(data);
@@ -193,7 +192,7 @@
 
     /* Set Group */
     grpTime = dimTime.group().reduceSum(function(d){
-        return d.num_people;
+        return d.count;
     });
 
     /* Time Range */
@@ -202,23 +201,6 @@
 
 
     /* dc.js Settings */
-    dep_time
-            .width(400)
-            .height(400)
-            .dimension(dimTime)
-            .group(function () {
-                return "";
-            })
-            .size(1)
-            .columns([
-                function (d){
-                    return d.dep_time;
-                }
-            ])
-            .sortBy(function(d) {
-                return d.dep_time2;
-            })
-            .order(d3.descending);
 
    comment
             .width(400)
@@ -230,7 +212,12 @@
             .size(1)
             .columns([
                 function (d){
-                    return 'バスは空いています。席に座れる可能性が高いです';
+                    if (d.comment == 1){
+                        return '湘南台駅行きバスは空いています。席に座れる可能性が高いです！';
+                    }
+                    else{
+                        return '湘南台駅行きバスは現在非常に混んでいます><' + ('<br>') + '少し時間をずらすことをオススメします';
+                    }
                 }
             ])
             .sortBy(function(d) {
@@ -248,7 +235,65 @@
             .size(1)
             .columns([
                 function (d){
-                    return d.num_people;
+                    return d.count + ('/') + d.seat_num;
+                }
+            ])
+            .sortBy(function(d) {
+                return d.dep_time2;
+            })
+            .order(d3.descending);
+
+    /* For Bus Time-Table */
+
+    var timeTable = {{ timeTable|safe }};
+    console.log(timeTable);
+    timeTable.forEach(function (d){
+        d.dep_time2 = parseTime(d.dep_time);
+    })
+    var ndxTime = crossfilter(timeTable);
+    var dimTime_timeTable = ndxTime.dimension(function (d){
+        return d.dep_time2;
+    });
+    var dimStation = ndxTime.dimension(function(d){
+        return d.dest;
+    });
+    var grpStation = dimStation.group().reduceCount(function (d){
+        return d.max_num
+    });
+    dep_time
+            .width(400)
+            .height(400)
+            .dimension(dimTime_timeTable)
+            .group(function () {
+                return "";
+            })
+            .size(1)
+            .columns([
+                function (d){
+                    return d.dep_time;
+                }
+            ])
+            .sortBy(function(d) {
+                return d.dep_time2;
+            })
+            .order(d3.descending);
+
+    dest_name
+            .width(400)
+            .height(400)
+            .dimension(dimTime_timeTable)
+            .group(function () {
+                return "";
+            })
+            .size(1)
+            .columns([
+                function (d){
+                    if (d.dest == 'shonandai'){
+                        return ('次の') + '湘南台' + ('駅行きバスの発車時間まで');
+                    }
+                    else{
+                        return ('次の') + '辻堂' + ('行きバスの発車時間まで');
+                    }
                 }
             ])
             .sortBy(function(d) {
@@ -259,20 +304,50 @@
     time_table
             .width(100)
             .height(100)
-            .dimension(dimTime)
+            .dimension(dimTime_timeTable)
             .group(function () {
                 return "";
             })
             .size(6)
             .columns([
-                function (d){
-                    return d.dep_time;
-                }
+                    function (d){
+                        return d.dep_time;
+                    },
+                    function (d){
+                        if (d.dest == 'shonandai'){
+                            return '湘南台駅';
+                        }
+                        else{
+                            return '辻堂駅';
+                        }
+                    },
+                    function (d){
+                        if (d.type == 'normal'){
+                            return 'バス';
+                        }
+                        else{
+                            return 'TwinLiner';
+                        }
+                    },
+                    function (d){
+                        return d.seat_num;
+                    },
+                    function(d){
+                        return d.max_num;
+                    }
+
             ])
             .sortBy(function(d) {
                 return d.dep_time2;
             })
             .order(d3.ascending);
+
+   select_station
+            .width(300).height(150)
+            .elasticX(true)
+            .controlsUseVisibility(true)
+            .dimension(dimStation)
+            .group(grpStation);
 
     range_chart
             .width(500)
@@ -283,6 +358,24 @@
             .x(d3.time.scale().domain([minTime, maxTime]));
 
     dc.renderAll();
+
+    var clickStation1 = function() {
+        dc.filterAll();
+        for (var i = 0; i <= select_station.data().length - 1; i++) {
+            if (select_station.data()[i].key == 'shonandai') {
+                select_station._onClick(select_station.data()[i]);
+            }
+        }
+    }
+    var clickStation2 = function() {
+        dc.filterAll();
+        for (var i = 0; i <= select_station.data().length - 1; i++) {
+            if (select_station.data()[i].key == 'tujido') {
+                select_station._onClick(select_station.data()[i]);
+            }
+        }
+    }
+    clickStation1();
 </script>
 </body>
 </html>
