@@ -43,7 +43,7 @@ body, html {
   font-family: 'Lato', sans-serif;
   font-weight: normal;
   font-size: 16px;
-  background: #f8faeb;
+  background: #F5F5F5;
   color: #3a3a3a;
   height: 100%;
 }
@@ -383,7 +383,6 @@ nav {
 	left:0px;
 	right: 0px;
 	bottom: 0px;
-	display:none;
 	z-index: 300;
 }
 nav section {
@@ -401,7 +400,38 @@ div.balloon-wrapper::after {
 	display: block;
 	line-height: 0;
 }
-p.balloon-left,
+p.balloon-left{
+	position: relative;
+	z-index: 1;
+	max-width: 80%;
+	min-width: 10%;
+	margin: 15px auto;
+	padding: 13px;
+	background-color: #fff;
+	border-width: 3px;
+	border-style: solid;
+	border-radius: 10px;
+}
+p.balloon-left::before{
+	content: "";
+	display: block;
+	position: absolute;
+	z-index: 10;
+	top: 100px;
+	width:  0;
+	height: 0;
+	border: 15px solid transparent;
+}
+p.balloon-left::after{
+	content: "";
+	display: block;
+	position: absolute;
+	z-index: 100;
+	top: 100px;
+	width:  0;
+	height: 0;
+	border: 15px solid transparent;
+}
 p.balloon-right {
 	position: relative;
 	z-index: 1;
@@ -414,30 +444,26 @@ p.balloon-right {
 	border-style: solid;
 	border-radius: 10px;
 }
-p.balloon-left::before,
-p.balloon-right::before {
+p.balloon-right::before{
 	content: "";
 	display: block;
 	position: absolute;
 	z-index: 10;
-	top: 100px;
+	top: 10px;
 	width:  0;
 	height: 0;
 	border: 15px solid transparent;
 }
-p.balloon-left::after,
-p.balloon-right::after {
+p.balloon-right::after{
 	content: "";
 	display: block;
 	position: absolute;
 	z-index: 100;
-	top: 100px;
+	top: 10px;
 	width:  0;
 	height: 0;
 	border: 15px solid transparent;
 }
-
-/* balloon left */
 p.balloon-left {
 	float: left;
 	font-size: 25px;
@@ -454,11 +480,11 @@ p.balloon-left::after {
 	border-right: 15px solid #fff;
 }
 
-/* balloon right */
+
 p.balloon-right {
 	float: left;
-	font-size: 15px;
-	width : 300px;
+	font-size: 25px;
+	width : 250px;
 	height : 150px;
 	border-color: black;
 }

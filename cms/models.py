@@ -29,11 +29,11 @@ class Sensor(models.Model):
 class TimeTable(models.Model):
     id = models.BigIntegerField(db_column='index', primary_key=True)
     dest = models.CharField(max_length=255)
-    dep_time = models.DateTimeField()
+    dep_time = models.TimeField()
     type = models.CharField(max_length=255)
-    max_num = models.IntegerField()
+    field_max_num = models.BigIntegerField(db_column=' max_num', blank=True, null=True)  # Field renamed to remove unsuitable characters. Field renamed because it started with '_'.
     seat_num = models.IntegerField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'timetable'

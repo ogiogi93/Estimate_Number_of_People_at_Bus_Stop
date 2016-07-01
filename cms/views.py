@@ -1,8 +1,7 @@
 from django.shortcuts import render, render_to_response
-from django.template import RequestContext
-from cms.models import Sensor, TimeTable
+from cms.models import TimeTable
+from django.http import HttpResponse, Http404
 from django.db import connection
-import datetime
 import pandas as pd
 
 
@@ -14,6 +13,10 @@ def dictfetchall(cursor):
         ]
 
 
+def add_time(d):
+    return d.time()
+
+
 def fix_id(s):
     s = str(s)
     return s.strip()
@@ -22,10 +25,10 @@ global t
 def add_bus_interval(d):
     for i in range(len(t)):
         if i < t.shape[0] - 1:
-            start = t['dep_time'].ix[i]
-            end = t['dep_time'].ix[i+1]
+            start = t['dep_time'].ix[i].time()
+            end = t['dep_time'].ix[i+1].time()
 
-            if start <= d and end  >= d:
+            if start <= d.time() and end  >= d.time():
                 return t['dep_time'].ix[i+1]
         else:
             return None
@@ -33,50 +36,113 @@ def add_bus_interval(d):
 
 def add_comment(d):
     seat_ratio = d['count'] / d['seat_num']
-    all_ratio = d['count'] / d['max_num']
+    all_ratio = d['count'] / d['field_max_num']
 
     if seat_ratio < 1.0:
         return 1
-    else:
+    elif seat_ratio > 1.0 and all_ratio < 1.0:
         return 2
+    else:
+        return 3
+
+
+def remove_noize(d):
+    if d['dest'] == 'tujido' and d['count'] is not None:
+        return None
+    else:
+        return d['count']
 
 
 def top_page(request):
+    return render(request, 'bus_line/index.html')
+
+
+def get_count(request):
+    if request.method == 'GET':
+        cursor = connection.cursor()
+        cursor.execute("""
+          SELECT * FROM timetable WHERE dep_time::time <= now()::time + interval '9 hour' and dest='shonandai' ORDER BY dep_time::time DESC LIMIT 1
+        """)
+        last_timetable = pd.DataFrame(list(dictfetchall(cursor)))['dep_time'][0]
+
+        cursor = connection.cursor()
+        cursor.execute("""
+          SELECT * FROM timetable WHERE dep_time::time >= now()::time + interval '9 hour' and dest='shonandai' ORDER BY dep_time::time ASC LIMIT 1
+        """)
+        next_timetable = pd.DataFrame(list(dictfetchall(cursor)))['dep_time'][0]
+
+        # Get the sensor data between last stop and now
+
+        cursor.execute("""
+          SELECT
+            *
+          FROM
+            sensor
+          WHERE
+            s_created_at::date = '2016-07-01' and s_created_at::time <= '""" + next_timetable + """' and s_created_at::time >= '""" + last_timetable + """'::time and s_ssid = '' and s_rssi <= -25 and s_rssi >= -90 and s_sensor_id = 1
+        """)
+        sensor = pd.DataFrame(list(dictfetchall(cursor)))
+        timeTable = pd.DataFrame(list(TimeTable.objects.filter(dest='shonandai').values()))
+
+        if sensor.shape[0] == 0:
+            return HttpResponse(sensor.to_json(orient='records'), content_type="application/json")
+        # Fix dtypes
+        sensor['s_ssid'] = sensor['s_ssid'].apply(fix_id)
+        sensor['s_mac_address'] = sensor['s_mac_address'].apply(fix_id)
+
+        # Count Number of People each Bus Stops
+        timeTable['dep_time'] = pd.to_datetime(timeTable['dep_time'])
+        global t
+        t = timeTable
+        sensor['ride_bus'] = sensor['s_created_at'].apply(add_bus_interval)
+
+        mobile_list = sensor.groupby(['s_mac_address', 'ride_bus']).count().reset_index()
+        bus_count = mobile_list.groupby(['ride_bus']).count().reset_index()
+
+        bus_count2 = bus_count[['ride_bus', 's_mac_address']]
+        bus_count2.columns = ['dep_time', 'count']
+
+        # Get bus-stop timetable
+        cursor = connection.cursor()
+        cursor.execute("""
+          SELECT * FROM timetable WHERE dep_time::time >= now()::time + interval '9 hour'ORDER BY dep_time::time DESC
+        """)
+        timeTable_all = pd.DataFrame(list(dictfetchall(cursor)))
+        timeTable_all['dep_time'] = timeTable_all['dep_time'].astype(str)
+        timeTable_all.columns = ['max_num', 'time', 'dest', 'index', 'seat_num', 'type']
+
+        features = pd.merge(bus_count2, timeTable, left_on=['dep_time'], right_on=['dep_time'])
+        features['time'] = features['dep_time'].apply(add_time)
+
+        features['comment'] = features.apply(add_comment, axis=1)
+
+        # For Merge
+        features['time'] = features['time'].astype(str)
+        timeTable_all['time'] = timeTable_all['time'].astype(str)
+        features2 = pd.merge(features, timeTable_all, left_on=['time'], right_on=['time'], how='right')
+
+        # Reforming Data Set
+        features3 = features2[['time', 'dest_y', 'count', 'type_y', 'max_num', 'seat_num_y', 'comment']]
+        features3.columns = ['dep_time', 'dest', 'count', 'type', 'max_num', 'seat_num', 'comment']
+        features3['dep_time'] = features3['dep_time'].astype(str)
+        features3 = features3.sort(['dep_time']).reset_index(drop=True)
+
+        # Check Noise
+        features3['count'] = features3.apply(remove_noize, axis=1)
+
+        return HttpResponse(features3.to_json(orient='records'), content_type="application/json")
+    else:
+        return Http404
+
+
+def get_timetable(request):
+    # Get bus-stop timetable
     cursor = connection.cursor()
     cursor.execute("""
-        SELECT
-            *
-        FROM
-            sensor
-        WHERE
-            s_created_at::date = '2016-06-25' and s_ssid = '' and s_rssi <= -25 and s_rssi >= -90 and s_sensor_id = 1
+    SELECT * FROM timetable WHERE dep_time::time >= now()::time + interval '9 hour'ORDER BY dep_time::time DESC
     """)
-    sensor = pd.DataFrame(list(dictfetchall(cursor)))
-    timeTable = pd.DataFrame(list(TimeTable.objects.filter(dest='shonandai').values()))
-    timeTable_all = pd.DataFrame(list(TimeTable.objects.all().values()))
+    timeTable_all = pd.DataFrame(list(dictfetchall(cursor)))
+    timeTable_all['dep_time'] = timeTable_all['dep_time'].astype(str)
+    timeTable_all.columns = ['max_num', 'dep_time', 'dest', 'index', 'seat_num', 'type']
 
-    sensor['s_ssid'] = sensor['s_ssid'].apply(fix_id)
-    sensor['s_mac_address'] = sensor['s_mac_address'].apply(fix_id)
-
-    # Count Number of People each Bus Stops
-    timeTable['dep_time'] = pd.to_datetime(timeTable['dep_time'])
-    global t
-    t = timeTable
-    sensor['ride_bus'] = sensor['s_created_at'].apply(add_bus_interval)
-
-    mobile_list = sensor.groupby(['s_mac_address', 'ride_bus']).count().reset_index()
-    bus_count = mobile_list.groupby(['ride_bus']).count().reset_index()
-
-    bus_count2 = bus_count[['ride_bus', 's_mac_address']]
-    bus_count2.columns = ['dep_time', 'count']
-
-    features = pd.merge(bus_count2, timeTable, left_on=['dep_time'], right_on=['dep_time'])
-    # ADD Comment
-    features['comment'] = features.apply(add_comment, axis=1)
-
-    features['dep_time'] = features['dep_time'].astype(str)
-    timeTable['dep_time'] = timeTable['dep_time'].astype(str)
-    return render_to_response('bus_line/index.html',
-                              {'result': features.to_json(orient='records'),
-                               'timeTable': timeTable_all.to_json(orient='records')},
-                              context_instance=RequestContext(request))
+    return HttpResponse(timeTable_all.to_json(orient='records'), content_type="application/json")

@@ -19,5 +19,7 @@ from cms import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'$', views.top_page)
+    url(r'^main/$', views.top_page),
+    url(r'^api/get_count/', views.get_count, name='get_count'),
+    url(r'^api/get_timetable/', views.get_timetable, name='get_timetable'),
 ]

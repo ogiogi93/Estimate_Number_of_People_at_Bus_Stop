@@ -14,7 +14,6 @@
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/responsive.css' %}" rel="stylesheet">
-    <link href="{% static 'css/TimeCircles.css' %}" rel="stylesheet">
     <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/dc.css' %}" rel="stylesheet">
     <link href="{% static 'css/timeline.css' %}" rel="stylesheet">
@@ -24,7 +23,7 @@
             width : 100px;
             height: 100px;
             color: white;
-            font-size: 45px;
+            font-size: 40px;
             text-align: center;
             top: 10%;
             right: 0;
@@ -32,6 +31,9 @@
 	        left: 35%;
 	        margin: auto;
             position: relative;
+        }
+        #dc-time-table{
+            font-size:14px;
         }
         p{
             color: white;
@@ -43,71 +45,112 @@
             color: black;
             font-size: 22px;
         }
+        #dc-com-mobile{
+            color: black;
+            font-size: 21px;
+        }
     </style>
 
 </head>
 <body>
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+
+    <div class="navbar-header">
+
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#nav-menu-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="navbar-brand" href="#">SFC-Research</a>
+
+    </div>
+
+    <div class="collapse navbar-collapse" id="nav-menu-1">
+
+      <ul class="nav navbar-nav">
+
+        <li class="active"><a href="#main">バス行列推定</a></li>
+        <li><a href="#timetable">バス時刻表</a></li>
+
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
 <section class="bg" id="main">
     <div class="bg-color">
         <div class="container content">
-            <br>
             <div class="row">
                 <div class="sun clearfix">
-                    <div class="col-sm-10">
-                        <h1>SFC-Research</h1>
-                        <h3>バス停各地点に設置されているWi-Fiセンサーを用いて、現在の各地点のバス行列人数を推定しています</h3>
-                        <h2>バス行列リアルタイム推定システム</h2>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="dropdown">
-                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">目的駅を選択
-                                <span class="caret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li><a href="JavaScript:clickStation1()">湘南台駅行</a></li>
-                                <li><a href="JavaScript:clickStation2()">辻堂駅行</a></li>
-                            </ul>
-                        </div>
+                    <div class="col-sm-12">
+                        <br>
+                        <h2 class="hidden-xs">バス行列リアルタイム推定システム</h2>
+                        <h3>バス停（慶応大学バス停前）に設置されているWi-Fiセンサーを用いて、現在の行列人数を推定しています<br>(10秒間隔で更新されます)</h3>
                     </div>
                     <div id="left-block" class="col-sm-6 text-center">
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-6">
-                                <h3>慶應大学前行列人数</h3>
+                                <h3>慶應大学前バス停行列人数</h3>
                                 <h5>推定人数/席数</h5>
                                 <div id='dc-num-table'></div>
                             </div>
                         </div>
-                        <div class="col-sm-4">
-                            <img class="img-responsive hidden-xs" src="/static/images/bus.png" width="200" height="200" alt="tab" id="bus_pic"/>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="balloon-wrapper">
-                                <p class="balloon-left" id="dc-com-table"></p>
+                        <div class="row">
+                            <div class="col-sm-4 hidden-xs">
+                                <img class="img-responsive" src="/static/images/bus.png" width="200" height="200" alt="tab" align="bottom" id="bus_pic"/>
+                            </div>
+                            <div class="col-sm-2 hidden-xs">
+                                <div class="balloon-wrapper">
+                                    <p class="balloon-left" id="dc-com-table"></p>
+                                </div>
+                            </div>
+                            <div class="col-xs-9 visible-xs">
+                                <div class="balloon-wrapper">
+                                    <p class="balloon-right" id="dc-com-mobile"></p>
+                                </div>
+                            </div>
+                            <div class="col-xs-3 visible-xs">
+                                <img class="img-responsive" src="/static/images/bus.png" width="120" height="120" alt="tab" align="bottom"  id="bus_pic"/>
                             </div>
                         </div>
                     </div>
+
                     <div id="right-block" class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-offset-1 col-sm-8">
+                                <p> ぜひ本システムに関する簡単なアンケートにご協力して頂けると幸いです。下のアイコンをクリックして頂けると、アンケートページへ移動します。</p>
+                                <p class="followus"></p>
+                                <ul class="social-icon">
+                                    <li><a href="https://docs.google.com/forms/d/1WE2-Rsx1gGYMAGjp-pI3HSCS8pNm72vCS6OVk_ZWzPA/viewform"><i class="fa fa-comments"></i><h5>アンケートページ</h5></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-offset-1 col-sm-8">
+                                <!--
                                     <h3><div id="dc-dest-name"></div></h3>
-                                <div class="timing">
-                                    <!--<div id="count-down" data-date="dc-dep-table"></div> --->
-                                    <div id="count-down" data-date="2016-06-25 16:00:00"></div>
-                                </div>
-                                <p>本システムは個人情報等は一切収集していなく、Mac Addressは暗号化して記録しています。<br>質問やご意見については、下記のアドレスへお問い合せ下さい</p>
-                                <p>慶應義塾大学　政策・メディア研究科修士2年　荻原　崇</p>
+                                    <div class="timing">
+                                        <div id="count-down"></div>
+                                        <div id="dc-dep-table"></div>
+                                    </div> -->
+                                <br><br>
+                                <p>本システムは個人情報等は一切収集していなく、Mac Addressは暗号化して記録しています。<br>ご質問やご相談等については、下記のアドレスへ<br>お問い合せ下さい</p>
+                                <p>慶應義塾大学　政策・メディア研究科修士2年<br>　荻原　崇</p>
                                 <p>ogiogi93@sfc.keio.ac.jp</p>
                                 <!-- /.timing -->
                             </div>
                         </div>
+                        <!---
                         <div id="row">
-                            <p class="followus"></p>
-                            <ul class="social-icon">
-                                <li><a href="http://tanabata.sfc.keio.ac.jp/"><i class="fa fa-camera-retro"></i></a></li>
-                                <li><a href="https://www.facebook.com/%E6%85%B6%E6%87%89%E7%BE%A9%E5%A1%BE%E5%A4%A7%E5%AD%A6-%E4%B8%83%E5%A4%95%E7%A5%AD%E5%AE%9F%E8%A1%8C%E5%A7%94%E5%93%A1%E4%BC%9A-204536412914428/"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="https://twitter.com/tana_27th?ref_src=twsrc%5Etfw"><i class="fa fa-twitter"></i></a></li>
-                            </ul>
                             <div id="dc-range-chart"></div>
                         </div>
+                        --->
                     </div>
                 </div>
             </div>
@@ -115,7 +158,7 @@
         <!-- .container end here -->
     </div>
 </section>
-<section>
+<section id="timetable">
     <div class="container">
         <div class='row'>
             <div class='col-sm-12'>
@@ -138,244 +181,268 @@
 </section>
 <script src="{% static 'js/jquery-3.0.0.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/TimeCircles.js' %}"></script>
 <script src="{% static 'js/jquery.ajaxchimp.min.js' %}"></script>
 <script src="{% static 'js/jquery.placeholder.js' %}"></script>
 <script src="{% static 'js/d3.js' %}"></script>
 <script src="{% static 'js/crossfilter.js' %}"></script>
 <script src="{% static 'js/dc.js' %}"></script>
-<script type="text/javascript">
-    $(function() {
-        // Invoke the plugin
-        $('input, textarea').placeholder();
-    });
-</script>
 <script>
-    $("#count-down").TimeCircles(
-            {
-                circle_bg_color: "#8a7f71",
-                use_background: true,
-                bg_width: 1.0,
-                fg_width: 0.02,
-                time: {
-                    Days: { color: "#fefeee" },
-                    Hours: { color: "#fefeee" },
-                    Minutes: { color: "#fefeee" },
-                    Seconds: { color: "#fefeee" }
-                }
-            }
-    );
-    var ndx, dimTime, grpTime;
-    var dep_time = dc.dataTable("#dc-dep-table"),
-            dest_name = dc.dataTable("#dc-dest-name"),
-            comment = dc.dataTable('#dc-com-table'),
-            num_people = dc.dataTable("#dc-num-table"),
-            time_table = dc.dataTable("#dc-time-table"),
-            select_station = dc.rowChart("#dc-select-station"),
-            range_chart = dc.lineChart('#dc-range-chart');
+    function resetData(ndx, dimensions) {
+        /* var commentFilters = comment.filters();
+        var numPeopleFilters = num_people.filters(); */
+        dimensions.forEach(function (dim) {
+            dim.filter(null);
+        });
+        ndx.remove();
+        /* comment.filter([commentFilters]);
+        num_people.filter([numPeopleFilters]); */
+    }
 
-    var data = {{ result|safe }};
-    var parseTime = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
-
-    data.forEach(function (d) {
-        d.dep_time2 = parseTime(d.dep_time);
-    });
-    console.log(data);
-
-    /* run data through crossfilter */
-    ndx = crossfilter(data);
-
-    /* Set dimension */
-    dimTime = ndx.dimension(function (d){
-        return d.dep_time2;
-    });
-
-    /* Set Group */
-    grpTime = dimTime.group().reduceSum(function(d){
-        return d.count;
-    });
-
-    /* Time Range */
-    var minTime = dimTime.bottom(1)[0].dep_time2;
-    var maxTime = dimTime.top(1)[0].dep_time2;
-
-
-    /* dc.js Settings */
-
-   comment
-            .width(400)
-            .height(400)
-            .dimension(dimTime)
-            .group(function () {
-                return "";
-            })
-            .size(1)
-            .columns([
-                function (d){
-                    if (d.comment == 1){
-                        return '湘南台駅行きバスは空いています。席に座れる可能性が高いです！';
+    function render_plots(){
+        comment
+                .width(400)
+                .height(400)
+                .dimension(dimTime)
+                .group(function () {
+                    return "";
+                })
+                .size(2)
+                .columns([
+                    function (d) {
+                        if (d.count != null){
+                            if (d.comment == 1) {
+                                return '湘南台駅行きバスは空いています。席に座れる可能性が高いです！';
+                            }
+                            else if (d.comment == 2){
+                                return '湘南台行きバスは少し混んでいます。席に座れない可能性が高いです。。';
+                            }
+                            else {
+                                return '湘南台駅行きバスは現在非常に混んでいます><' + ('<br>') + '少し時間をずらすことをオススメします';
+                            }
+                        }
                     }
-                    else{
-                        return '湘南台駅行きバスは現在非常に混んでいます><' + ('<br>') + '少し時間をずらすことをオススメします';
+                ])
+                .sortBy(function (d) {
+                    return d.dep_time2;
+                })
+                .order(d3.ascending);
+
+        comment_mobile
+                .width(400)
+                .height(400)
+                .dimension(dimTime)
+                .group(function () {
+                    return "";
+                })
+                .size(2)
+                .columns([
+                    function (d) {
+                        if (d.count != null){
+                            if (d.comment == 1) {
+                                return '湘南台駅行きバスは空いています。席に座れる可能性が高いです！';
+                            }
+                            else if (d.comment == 2){
+                                return '湘南台行きバスは少し混んでいます。席に座れない可能性が高いです。。';
+                            }
+                            else {
+                                return '湘南台駅行きバスは現在非常に混んでいます><' + ('<br>') + '少し時間をずらすことをオススメします';
+                            }
+                        }
                     }
-                }
-            ])
-            .sortBy(function(d) {
-                return d.dep_time2;
-            })
-            .order(d3.descending);
-
-    num_people
-            .width(100)
-            .height(100)
-            .dimension(dimTime)
-            .group(function () {
-                return "";
-            })
-            .size(1)
-            .columns([
-                function (d){
-                    return d.count + ('/') + d.seat_num;
-                }
-            ])
-            .sortBy(function(d) {
-                return d.dep_time2;
-            })
-            .order(d3.descending);
-
-    /* For Bus Time-Table */
-
-    var timeTable = {{ timeTable|safe }};
-    console.log(timeTable);
-    timeTable.forEach(function (d){
-        d.dep_time2 = parseTime(d.dep_time);
-    })
-    var ndxTime = crossfilter(timeTable);
-    var dimTime_timeTable = ndxTime.dimension(function (d){
-        return d.dep_time2;
-    });
-    var dimStation = ndxTime.dimension(function(d){
-        return d.dest;
-    });
-    var grpStation = dimStation.group().reduceCount(function (d){
-        return d.max_num
-    });
-    dep_time
-            .width(400)
-            .height(400)
-            .dimension(dimTime_timeTable)
-            .group(function () {
-                return "";
-            })
-            .size(1)
-            .columns([
-                function (d){
-                    return d.dep_time;
-                }
-            ])
-            .sortBy(function(d) {
-                return d.dep_time2;
-            })
-            .order(d3.descending);
-
-    dest_name
-            .width(400)
-            .height(400)
-            .dimension(dimTime_timeTable)
-            .group(function () {
-                return "";
-            })
-            .size(1)
-            .columns([
-                function (d){
-                    if (d.dest == 'shonandai'){
-                        return ('次の') + '湘南台' + ('駅行きバスの発車時間まで');
+                ])
+                .sortBy(function (d) {
+                    return d.dep_time2;
+                })
+                .order(d3.ascending);
+        num_people
+                .width(100)
+                .height(100)
+                .dimension(dimTime)
+                .group(function () {
+                    return "";
+                })
+                .size(2)
+                .columns([
+                    function (d) {
+                        console.log(d);
+                        if (d.count != null){
+                            return d.count + ('/') + d.seat_num;
+                        }
                     }
-                    else{
-                        return ('次の') + '辻堂' + ('行きバスの発車時間まで');
-                    }
-                }
-            ])
-            .sortBy(function(d) {
-                return d.dep_time2;
-            })
-            .order(d3.descending);
+                ])
+                .sortBy(function (d) {
+                    return d.dep_time2;
+                })
+                .order(d3.ascending);
 
-    time_table
-            .width(100)
-            .height(100)
-            .dimension(dimTime_timeTable)
-            .group(function () {
-                return "";
-            })
-            .size(6)
-            .columns([
-                    function (d){
+        /*
+        dep_time
+                .width(400)
+                .height(400)
+                .dimension(dimTime)
+                .group(function () {
+                    return "";
+                })
+                .size(1)
+                .columns([
+                    function (d) {
+                        dateObj = '2016-07-02' + ' ' + d.dep_time;
+                        return ('<div id="count-down" data-date="') + ' + dateObj + ' + ('"></div>');
+                        return ''
+                    }
+                ])
+                .sortBy(function (d) {
+                    return d.dep_time2;
+                })
+                .order(d3.ascending);
+
+         */
+
+        dest_name
+                .width(400)
+                .height(400)
+                .dimension(dimTime)
+                .group(function () {
+                    return "";
+                })
+                .size(1)
+                .columns([
+                    function (d) {
+                        if (d.dest == 'shonandai') {
+                            return ('次の') + '湘南台' + ('駅行きバスの発車時間まで');
+                        }
+                        else {
+                            return ('次の') + '辻堂' + ('行きバスの発車時間まで');
+                        }
+                    }
+                ])
+                .sortBy(function (d) {
+                    return d.dep_time2;
+                })
+                .order(d3.ascending);
+
+        time_table
+                .width(100)
+                .height(100)
+                .dimension(dimTime)
+                .group(function () {
+                    return "";
+                })
+                .size(12)
+                .columns([
+                    function (d) {
                         return d.dep_time;
                     },
-                    function (d){
-                        if (d.dest == 'shonandai'){
+                    function (d) {
+                        if (d.dest == 'shonandai') {
                             return '湘南台駅';
                         }
-                        else{
+                        else {
                             return '辻堂駅';
                         }
                     },
-                    function (d){
-                        if (d.type == 'normal'){
+                    function (d) {
+                        if (d.type == 'Bus') {
                             return 'バス';
                         }
-                        else{
+                        else if (d.type == 'detour') {
+                            return '笹久保経由';
+                        }
+                        else if (d.type == 'spceial') {
+                            return '臨時便';
+                        }
+                        else {
                             return 'TwinLiner';
                         }
                     },
-                    function (d){
+                    function (d) {
                         return d.seat_num;
                     },
-                    function(d){
+                    function (d) {
                         return d.max_num;
                     }
+                ])
+                .sortBy(function (d) {
+                    return d.dep_time2;
+                })
+                .order(d3.ascending);
 
-            ])
-            .sortBy(function(d) {
-                return d.dep_time2;
-            })
-            .order(d3.ascending);
+        /*
+        select_station
+                .width(300).height(150)
+                .elasticX(true)
+                .controlsUseVisibility(true)
+                .dimension(dimStation)
+                .group(grpStation);
 
-   select_station
-            .width(300).height(150)
-            .elasticX(true)
-            .controlsUseVisibility(true)
-            .dimension(dimStation)
-            .group(grpStation);
 
-    range_chart
-            .width(500)
-            .height(30)
-            .dimension(dimTime)
-            .margins({top: 0, right: 50, bottom: 20, left: -1})
-            .group(grpTime)
-            .x(d3.time.scale().domain([minTime, maxTime]));
+         range_chart
+         .width(500)
+         .height(30)
+         .dimension(dimTime)
+         .margins({top: 0, right: 50, bottom: 20, left: -1})
+         .group(grpTime)
+         .x(d3.time.scale().domain([minTime, maxTime]));
+         */
+        console.log('Rendering');
 
-    dc.renderAll();
+        dc.renderAll();
 
-    var clickStation1 = function() {
-        dc.filterAll();
-        for (var i = 0; i <= select_station.data().length - 1; i++) {
-            if (select_station.data()[i].key == 'shonandai') {
-                select_station._onClick(select_station.data()[i]);
-            }
-        }
     }
-    var clickStation2 = function() {
-        dc.filterAll();
-        for (var i = 0; i <= select_station.data().length - 1; i++) {
-            if (select_station.data()[i].key == 'tujido') {
-                select_station._onClick(select_station.data()[i]);
-            }
-        }
-    }
-    clickStation1();
+
+    var ndx,ndxTime, dimTime, grpTime, grpStation;
+    var comment = dc.dataTable("#dc-com-table"),
+            comment_mobile = dc.dataTable("#dc-com-mobile"),
+            num_people = dc.dataTable("#dc-num-table"),
+            time_table = dc.dataTable("#dc-time-table"),
+            dest_name = dc.dataTable("#dc-dest-name");
+    /*
+    var select_station = dc.rowChart("#dc-select-station"),
+            range_chart = dc.lineChart("#dc-range-chart"),
+            dep_time = dc.dataTable("#dc-dep-table");     */
+    var parseDateTime = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+    var parseTime = d3.time.format("%H:%M:%S").parse;
+
+    /* Get result from DB */
+    d3.json("{% url 'get_count' %}", function(error, data) {
+        console.log('First Loading');
+        data.forEach(function (d) {
+            d.dep_time2 = parseTime(d.dep_time);
+        });
+
+        /* run data through crossfilter */
+        ndx = crossfilter(data);
+
+        /* Set dimension */
+        dimTime = ndx.dimension(function (d) {
+            return d.dep_time2;
+        });
+
+        /* Set Group */
+        grpTime = dimTime.group().reduceSum(function (d) {
+            return d.count;
+        });
+
+        render_plots();
+
+    });
+
+
+    // REFRESH RESULT DATA AFTER 10 SECONDS
+    setInterval(function() {
+        console.log("data reset");
+        resetData(ndx, [dimTime]);
+        d3.json("{% url 'get_count' %}", function(error, data) {
+            data.forEach(function (d) {
+                d.dep_time2 = parseTime(d.dep_time);
+            });
+            ndx.add(data);
+
+            dc.redrawAll();
+        });
+        console.log('refreshed');
+    }, 10000);
+
 </script>
 </body>
 </html>
