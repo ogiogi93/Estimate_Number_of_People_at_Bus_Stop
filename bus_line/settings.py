@@ -81,8 +81,8 @@ DATABASES = {
         'NAME': 'bus',
         'USER': 'ogi',
         'PASSWORD': 'z5gYmm6J',
-         'HOST': '192.168.1.10',
-         'PORT': '5432',
+        'HOST': '192.168.1.10',
+        'PORT': '5432',
         # 'HOST': '223.134.140.48',
         # 'PORT': '3901',
     }
