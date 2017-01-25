@@ -75,18 +75,7 @@ WSGI_APPLICATION = 'bus_line.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bus',
-        'USER': 'ogi',
-        'PASSWORD': 'z5gYmm6J',
-        'HOST': '192.168.1.10',
-        'PORT': '5432',
-        # 'HOST': '223.134.140.48',
-        # 'PORT': '3901',
-    }
-}
+DATABASES = {}
 
 
 # Password validation
