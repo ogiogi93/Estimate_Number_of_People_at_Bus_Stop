@@ -1,4 +1,4 @@
-SFC Keio 七夕祭リアルタイムバス行列人数推定システム
+リアルタイムバス行列人数推定システム(in SFC Keio)
 ====
 
 ## Description
