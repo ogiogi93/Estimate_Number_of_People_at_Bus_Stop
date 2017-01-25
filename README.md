@@ -1,4 +1,4 @@
-Real-TIme Estiamte a line at bus stop in SFC Keio Campus
+SFC Keio 七夕祭リアルタイムバス行列人数推定システム
 ====
 
 ## Description
